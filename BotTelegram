@@ -1,0 +1,52 @@
+import requests
+import json
+import re
+
+from telegram.ext import Updater, CommandHandler
+
+# Sostituisci il valore di TOKEN con il token del tuo bot
+TOKEN = "mtEcCyBc92qpXrbG8fVEIF4jcpOPxF95U3s3F7YG"
+
+# Sostituisci il valore di AFFILIATE_ID con il tuo ID affiliato Amazon
+AFFILIATE_ID = "kenshiofficia-21"
+
+def generate_affiliate_link(link):
+  # Estrai l'ID del prodotto dall'URL
+  product_id = re.search(r"(?<=/)([A-Z0-9]{10})(?=/)", link).group()
+
+  # Crea il link affiliato utilizzando l'ID del prodotto e il tuo ID affiliato
+  affiliate_link = f"https://www.amazon.it/dp/{product_id}/?tag={AFFILIATE_ID}"
+
+  return affiliate_link
+
+def affiliate(update, context):
+  # Prendi il link inviato dall'utente
+  link = update.message.text
+
+  # Genera il link affiliato
+  affiliate_link = generate_affiliate_link(link)
+
+  # Invia il link affiliato all'utente
+  update.message.reply_text(affiliate_link)
+
+def main():
+  # Crea l'updater e passa il token
+  updater = Updater(TOKEN, use_context=True)
+
+  # Ottieni il dispatcher per registrare i comandi
+  dp = updater.dispatcher
+
+  # Crea il comando /affiliate
+  affiliate_handler = CommandHandler("affiliate", affiliate)
+
+  # Registra il comando
+  dp.add_handler(affiliate_handler)
+
+  # Avvia il loop di aggiornamento
+  updater.start_polling()
+
+  # Blocca il programma finché il processo non viene interrotto
+  updater.idle()
+
+if __name__ == '__main__':
+  main()
